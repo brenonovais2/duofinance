@@ -1,12 +1,9 @@
 import React from "react";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import DespesaModal from "@/components/DespesaModal";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import GerenciarUsuarios from "@/components/GerenciarUsuarios";
-
-// Singleton client for fast refresh during dev
-const prisma = new PrismaClient();
 
 export const dynamic = "force-dynamic";
 
