@@ -4,6 +4,8 @@ import CartoesClient from "./CartoesClient";
 
 const prisma = new PrismaClient();
 
+export const dynamic = "force-dynamic";
+
 export default async function CartoesPage() {
   const cartoes = await prisma.cartao.findMany({
     orderBy: { nome: 'asc' },

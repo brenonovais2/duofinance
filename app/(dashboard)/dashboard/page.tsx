@@ -8,6 +8,8 @@ import GerenciarUsuarios from "@/components/GerenciarUsuarios";
 // Singleton client for fast refresh during dev
 const prisma = new PrismaClient();
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   let usuarios = await prisma.usuario.findMany();
   
