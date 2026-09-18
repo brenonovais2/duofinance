@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User } from "@prisma/client";
+
 import { addUsuario, deleteUsuario } from "@/app/actions/usuarios";
 import { Trash2, Plus, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
