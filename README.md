@@ -15,7 +15,8 @@ DuoFinance é uma aplicação web voltada para a gestão financeira de casais ou
 
 - **Frontend:** [Next.js](https://nextjs.org/) (React)
 - **Estilização:** [Tailwind CSS](https://tailwindcss.com/) & [Lucide React](https://lucide.dev/) (Ícones)
-- **Backend/Banco de Dados:** [Prisma ORM](https://www.prisma.io/) com banco de dados **SQLite** local.
+- **Backend/Banco de Dados:** [Prisma ORM](https://www.prisma.io/) com banco de dados **PostgreSQL**.
+- **Autenticação:** [Clerk](https://clerk.com/)
 - **Linguagem:** TypeScript
 
 ## ⚙️ Pré-requisitos
@@ -40,13 +41,21 @@ npm install
 ```
 
 ### 3. Configure as variáveis de ambiente
-Crie um arquivo `.env` na raiz do projeto (caso não exista) e adicione a URL de conexão com o banco de dados (SQLite):
+Crie um arquivo `.env` ou `.env.local` na raiz do projeto e adicione as variáveis de conexão com o banco de dados (PostgreSQL) e as chaves do Clerk:
 ```env
-DATABASE_URL="file:./dev.db"
+# Banco de Dados
+DATABASE_URL="postgresql://usuario:senha@host:5432/banco?schema=public"
+DIRECT_URL="postgresql://usuario:senha@host:5432/banco?schema=public"
+
+# Clerk (Autenticação)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
 ```
 
 ### 4. Inicialize o Banco de Dados
-Execute as migrações do Prisma para criar as tabelas no SQLite:
+Execute as migrações do Prisma para criar as tabelas no PostgreSQL:
 ```bash
 npx prisma migrate dev --name init
 ```
