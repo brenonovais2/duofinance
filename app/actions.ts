@@ -2,8 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 export async function addDespesa(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
   const descricao = formData.get("descricao") as string;
   const valor = parseFloat(formData.get("valor") as string);
   const pagoPorId = formData.get("pagoPorId") as string;
@@ -15,6 +19,7 @@ export async function addDespesa(formData: FormData) {
 
   await prisma.despesa.create({
     data: {
+      clerkUserId: userId,
       descricao,
       valor,
       pagoPorId,
@@ -29,8 +34,11 @@ export async function addDespesa(formData: FormData) {
 }
 
 export async function toggleDespesaStatus(id: string, statusPago: boolean) {
-  await prisma.despesa.update({
-    where: { id },
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
+  await prisma.despesa.updateMany({
+    where: { id, clerkUserId: userId },
     data: { statusPago }
   });
   revalidatePath("/");
@@ -38,8 +46,11 @@ export async function toggleDespesaStatus(id: string, statusPago: boolean) {
 }
 
 export async function deleteDespesa(id: string) {
-  await prisma.despesa.delete({
-    where: { id }
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
+  await prisma.despesa.deleteMany({
+    where: { id, clerkUserId: userId }
   });
   revalidatePath("/");
   revalidatePath("/lancamentos");

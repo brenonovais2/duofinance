@@ -1,5 +1,7 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import DespesaModal from "@/components/DespesaModal";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -8,7 +10,12 @@ import GerenciarUsuarios from "@/components/GerenciarUsuarios";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  let usuarios = await prisma.usuario.findMany();
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
+  let usuarios = await prisma.usuario.findMany({
+    where: { clerkUserId: userId }
+  });
   
   const currentDate = new Date();
   const targetMes = currentDate.getMonth() + 1;
@@ -18,6 +25,7 @@ export default async function DashboardPage() {
 
   const despesas = await prisma.despesa.findMany({
     where: {
+      clerkUserId: userId,
       data: {
         gte: startDate,
         lte: endDate,

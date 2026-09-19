@@ -1,16 +1,23 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import CartoesClient from "./CartoesClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function CartoesPage() {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
   const cartoes = await prisma.cartao.findMany({
+    where: { clerkUserId: userId },
     orderBy: { nome: 'asc' },
     include: { faturas: true }
   });
 
   const faturas = await prisma.fatura.findMany({
+    where: { clerkUserId: userId },
     include: {
       cartao: true,
       despesas: {
@@ -23,7 +30,9 @@ export default async function CartoesPage() {
     ]
   });
 
-  const usuarios = await prisma.usuario.findMany();
+  const usuarios = await prisma.usuario.findMany({
+    where: { clerkUserId: userId }
+  });
 
   return (
     <main className="flex-1 p-6 md:p-10 overflow-y-auto">

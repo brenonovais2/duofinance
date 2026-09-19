@@ -2,9 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 export async function getCartoes() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
   return await prisma.cartao.findMany({
+    where: { clerkUserId: userId },
     orderBy: { nome: 'asc' },
     include: {
       faturas: true
@@ -13,6 +18,9 @@ export async function getCartoes() {
 }
 
 export async function addCartao(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
   const nome = formData.get("nome") as string;
   const limite = parseFloat(formData.get("limite") as string || "0");
   const diaVencimento = parseInt(formData.get("diaVencimento") as string);
@@ -20,6 +28,7 @@ export async function addCartao(formData: FormData) {
 
   await prisma.cartao.create({
     data: {
+      clerkUserId: userId,
       nome,
       limite: limite > 0 ? limite : null,
       diaVencimento,
@@ -31,7 +40,11 @@ export async function addCartao(formData: FormData) {
 }
 
 export async function getFaturasPorMes() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
   return await prisma.fatura.findMany({
+    where: { clerkUserId: userId },
     include: {
       cartao: true,
       despesas: true
@@ -44,14 +57,20 @@ export async function getFaturasPorMes() {
 }
 
 export async function updateFaturaStatus(id: string, status: string) {
-  await prisma.fatura.update({
-    where: { id },
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
+  await prisma.fatura.updateMany({
+    where: { id, clerkUserId: userId },
     data: { status }
   });
   revalidatePath("/cartoes");
 }
 
 export async function addDespesaParcelada(formData: FormData, cartaoId: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
   const descricao = formData.get("descricao") as string;
   const valorTotal = parseFloat(formData.get("valorTotal") as string);
   const pagoPorId = formData.get("pagoPorId") as string;
@@ -62,7 +81,7 @@ export async function addDespesaParcelada(formData: FormData, cartaoId: string) 
   const parcelas = parseInt(formData.get("parcelas") as string || "1");
 
   const valorParcela = valorTotal / parcelas;
-  const cartao = await prisma.cartao.findUnique({ where: { id: cartaoId } });
+  const cartao = await prisma.cartao.findFirst({ where: { id: cartaoId, clerkUserId: userId } });
   
   if (!cartao) throw new Error("Cartão não encontrado");
 
@@ -82,12 +101,13 @@ export async function addDespesaParcelada(formData: FormData, cartaoId: string) 
   for (let i = 1; i <= parcelas; i++) {
     // Check if Fatura exists for this month/year and card
     let fatura = await prisma.fatura.findFirst({
-      where: { cartaoId: cartao.id, mes: mesAtual, ano: anoAtual }
+      where: { cartaoId: cartao.id, mes: mesAtual, ano: anoAtual, clerkUserId: userId }
     });
 
     if (!fatura) {
       fatura = await prisma.fatura.create({
         data: {
+          clerkUserId: userId,
           cartaoId: cartao.id,
           mes: mesAtual,
           ano: anoAtual,
@@ -102,6 +122,7 @@ export async function addDespesaParcelada(formData: FormData, cartaoId: string) 
 
     await prisma.despesa.create({
       data: {
+        clerkUserId: userId,
         descricao: parcelas > 1 ? `${descricao} (${i}/${parcelas})` : descricao,
         valor: valorParcela,
         data: dataCompra,
@@ -128,13 +149,16 @@ export async function addDespesaParcelada(formData: FormData, cartaoId: string) 
 }
 
 export async function updateCartao(id: string, formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
   const nome = formData.get("nome") as string;
   const limite = parseFloat(formData.get("limite") as string || "0");
   const diaVencimento = parseInt(formData.get("diaVencimento") as string);
   const diaFechamento = parseInt(formData.get("diaFechamento") as string);
 
-  await prisma.cartao.update({
-    where: { id },
+  await prisma.cartao.updateMany({
+    where: { id, clerkUserId: userId },
     data: {
       nome,
       limite: limite > 0 ? limite : null,
@@ -147,11 +171,14 @@ export async function updateCartao(id: string, formData: FormData) {
 }
 
 export async function updateDespesa(id: string, formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
   const descricao = formData.get("descricao") as string;
   const valor = parseFloat(formData.get("valor") as string);
 
-  await prisma.despesa.update({
-    where: { id },
+  await prisma.despesa.updateMany({
+    where: { id, clerkUserId: userId },
     data: {
       descricao,
       valor
@@ -162,8 +189,11 @@ export async function updateDespesa(id: string, formData: FormData) {
 }
 
 export async function deleteDespesa(id: string) {
-  await prisma.despesa.delete({
-    where: { id },
+  const { userId } = await auth();
+  if (!userId) throw new Error("Não autorizado");
+
+  await prisma.despesa.deleteMany({
+    where: { id, clerkUserId: userId },
   });
 
   revalidatePath("/cartoes");

@@ -8,13 +8,15 @@ datasource db {
 }
 
 model Usuario {
-  id        String    @id @default(uuid())
-  nome      String
-  despesas  Despesa[] @relation("DespesasPagas")
+  id          String    @id @default(uuid())
+  clerkUserId String?   
+  nome        String
+  despesas    Despesa[] @relation("DespesasPagas")
 }
 
 model Cartao {
   id            String    @id @default(uuid())
+  clerkUserId   String    @default("") // Temporário para não quebrar dados antigos
   nome          String
   limite        Float?
   diaVencimento Int
@@ -25,6 +27,7 @@ model Cartao {
 
 model Fatura {
   id          String    @id @default(uuid())
+  clerkUserId   String    @default("")
   cartaoId    String
   cartao      Cartao    @relation(fields: [cartaoId], references: [id], onDelete: Cascade)
   mes         Int       // 1 a 12
@@ -35,6 +38,7 @@ model Fatura {
 
 model Despesa {
   id            String   @id @default(uuid())
+  clerkUserId   String    @default("")
   descricao     String
   valor         Float
   data          DateTime @default(now())
