@@ -27,25 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ClerkProvider
-          localization={ptBR}
-          appearance={{
-            layout: {
-              logoImageUrl: "/logo.png",
-              logoPlacement: "inside",
-            },
-            variables: {
-              colorPrimary: "#5E2BFF",
-              colorBackground: "#FFFFFF",
-              colorInputBackground: "#F9FAFB",
-            },
-            elements: {
-              card: "shadow-xl border border-gray-100 rounded-3xl",
-              formButtonPrimary: "rounded-xl font-bold",
-              formFieldInput: "rounded-xl border-gray-200",
-            }
-          }}
-        >
+        <ClerkProvider localization={ptBR}>
           {children}
         </ClerkProvider>
       </body>
