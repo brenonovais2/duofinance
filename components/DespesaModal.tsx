@@ -70,7 +70,6 @@ export default function DespesaModal({ usuarios }: { usuarios: Usuario[] }) {
                     className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#5E2BFF]/50 bg-white"
                   >
                     <option value="Mercado">Mercado</option>
-                    <option value="Cartões">Cartões</option>
                     <option value="Casa">Casa</option>
                     <option value="Veículo">Veículo</option>
                     <option value="Outros">Outros</option>

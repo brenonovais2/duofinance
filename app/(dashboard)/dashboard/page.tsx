@@ -46,7 +46,6 @@ export default async function DashboardPage() {
   // Categórias
   const gastosPorCategoria: Record<string, number> = {
     Mercado: 0,
-    Cartões: 0,
     Casa: 0,
     Veículo: 0,
     Outros: 0

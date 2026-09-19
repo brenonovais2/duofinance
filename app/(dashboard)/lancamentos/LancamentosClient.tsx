@@ -200,7 +200,6 @@ export default function LancamentosClient({ despesas, usuarios }: { despesas: De
               <option>Mercado</option>
               <option>Casa</option>
               <option>Veículo</option>
-              <option>Cartões</option>
               <option>Outros</option>
             </select>
           </div>
