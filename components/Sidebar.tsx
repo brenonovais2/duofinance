@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -78,6 +79,9 @@ export default function Sidebar() {
           );
         })}
       </nav>
+      <div className="p-4 border-t border-gray-100 flex items-center justify-center md:justify-start gap-3">
+        <UserButton showName />
+      </div>
     </aside>
   );
 }
