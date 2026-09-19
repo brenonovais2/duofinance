@@ -7,17 +7,18 @@ import CartoesClient from "./CartoesClient";
 export const dynamic = "force-dynamic";
 
 export default async function CartoesPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) redirect("/sign-in");
 
   const cartoes = await prisma.cartao.findMany({
-    where: { clerkUserId: userId },
+    where: { ownerId },
     orderBy: { nome: 'asc' },
     include: { faturas: true }
   });
 
   const faturas = await prisma.fatura.findMany({
-    where: { clerkUserId: userId },
+    where: { ownerId },
     include: {
       cartao: true,
       despesas: {
@@ -31,7 +32,7 @@ export default async function CartoesPage() {
   });
 
   const usuarios = await prisma.usuario.findMany({
-    where: { clerkUserId: userId }
+    where: { ownerId }
   });
 
   return (

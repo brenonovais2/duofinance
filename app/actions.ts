@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 export async function addDespesa(formData: FormData) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Não autorizado");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
 
   const descricao = formData.get("descricao") as string;
   const valor = parseFloat(formData.get("valor") as string);
@@ -19,7 +20,7 @@ export async function addDespesa(formData: FormData) {
 
   await prisma.despesa.create({
     data: {
-      clerkUserId: userId,
+      ownerId,
       descricao,
       valor,
       pagoPorId,
@@ -34,11 +35,12 @@ export async function addDespesa(formData: FormData) {
 }
 
 export async function toggleDespesaStatus(id: string, statusPago: boolean) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Não autorizado");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
 
   await prisma.despesa.updateMany({
-    where: { id, clerkUserId: userId },
+    where: { id, ownerId },
     data: { statusPago }
   });
   revalidatePath("/");
@@ -46,11 +48,12 @@ export async function toggleDespesaStatus(id: string, statusPago: boolean) {
 }
 
 export async function deleteDespesa(id: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Não autorizado");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
 
   await prisma.despesa.deleteMany({
-    where: { id, clerkUserId: userId }
+    where: { id, ownerId }
   });
   revalidatePath("/");
   revalidatePath("/lancamentos");
