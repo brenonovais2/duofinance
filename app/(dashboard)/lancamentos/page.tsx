@@ -7,15 +7,16 @@ import LancamentosClient from "./LancamentosClient";
 export const dynamic = "force-dynamic";
 
 export default async function LancamentosPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) redirect("/sign-in");
 
   const usuarios = await prisma.usuario.findMany({
-    where: { clerkUserId: userId }
+    where: { ownerId }
   });
   // Busca as despesas no banco de dados, incluindo o nome de quem pagou
   const despesas = await prisma.despesa.findMany({
-    where: { clerkUserId: userId },
+    where: { ownerId },
     include: {
       pagoPor: {
         select: { id: true, nome: true }

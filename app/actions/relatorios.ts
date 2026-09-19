@@ -4,8 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 export async function getBalancoMensal(mes?: number, ano?: number) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Não autorizado");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
 
   const currentDate = new Date();
   const targetMes = mes || currentDate.getMonth() + 1;
@@ -17,7 +18,7 @@ export async function getBalancoMensal(mes?: number, ano?: number) {
 
   const despesas = await prisma.despesa.findMany({
     where: {
-      clerkUserId: userId,
+      ownerId,
       data: {
         gte: startDate,
         lte: endDate,
@@ -29,7 +30,7 @@ export async function getBalancoMensal(mes?: number, ano?: number) {
   });
 
   const usuarios = await prisma.usuario.findMany({
-    where: { clerkUserId: userId }
+    where: { ownerId }
   });
   
   let totalCasa = 0;

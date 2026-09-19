@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 export async function addUsuario(formData: FormData) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Não autorizado");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
 
   const nome = formData.get("nome") as string;
   
@@ -16,7 +17,7 @@ export async function addUsuario(formData: FormData) {
 
   await prisma.usuario.create({
     data: {
-      clerkUserId: userId,
+      ownerId,
       nome: nome.trim(),
     }
   });
@@ -25,11 +26,12 @@ export async function addUsuario(formData: FormData) {
 }
 
 export async function deleteUsuario(id: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Não autorizado");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
 
   await prisma.usuario.deleteMany({
-    where: { id, clerkUserId: userId }
+    where: { id, ownerId }
   });
   
   revalidatePath("/dashboard");

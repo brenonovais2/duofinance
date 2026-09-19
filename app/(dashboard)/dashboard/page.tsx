@@ -10,11 +10,12 @@ import GerenciarUsuarios from "@/components/GerenciarUsuarios";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) redirect("/sign-in");
 
   let usuarios = await prisma.usuario.findMany({
-    where: { clerkUserId: userId }
+    where: { ownerId }
   });
   
   const currentDate = new Date();
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
 
   const despesas = await prisma.despesa.findMany({
     where: {
-      clerkUserId: userId,
+      ownerId,
       data: {
         gte: startDate,
         lte: endDate,
