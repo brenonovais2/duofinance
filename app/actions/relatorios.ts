@@ -16,33 +16,34 @@ export async function getBalancoMensal(mes?: number, ano?: number) {
   const startDate = new Date(targetAno, targetMes - 1, 1);
   const endDate = new Date(targetAno, targetMes, 0, 23, 59, 59, 999);
 
-  const despesas = await prisma.despesa.findMany({
-    where: {
-      ownerId,
-      data: {
-        gte: startDate,
-        lte: endDate,
+  const [despesas, usuarios] = await Promise.all([
+    prisma.despesa.findMany({
+      where: {
+        ownerId,
+        data: {
+          gte: startDate,
+          lte: endDate,
+        }
+      },
+      include: {
+        pagoPor: true
       }
-    },
-    include: {
-      pagoPor: true
-    }
-  });
-
-  const usuarios = await prisma.usuario.findMany({
-    where: { ownerId }
-  });
+    }),
+    prisma.usuario.findMany({
+      where: { ownerId }
+    })
+  ]);
   
   let totalCasa = 0;
   const pagamentosPorUsuario: Record<string, { id: string, nome: string, totalPago: number }> = {};
   
-  usuarios.forEach(u => {
+  usuarios.forEach((u: { id: string; nome: string }) => {
     pagamentosPorUsuario[u.id] = { id: u.id, nome: u.nome, totalPago: 0 };
   });
 
   const gastosPorCategoria: Record<string, number> = {};
 
-  despesas.forEach(d => {
+  despesas.forEach((d: { valor: number; pagoPorId: string; categoria: string | null }) => {
     totalCasa += d.valor;
     if (pagamentosPorUsuario[d.pagoPorId]) {
       pagamentosPorUsuario[d.pagoPorId].totalPago += d.valor;

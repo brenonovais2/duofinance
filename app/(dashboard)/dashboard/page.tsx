@@ -14,31 +14,32 @@ export default async function DashboardPage() {
   const ownerId = orgId || userId;
   if (!ownerId) redirect("/sign-in");
 
-  let usuarios = await prisma.usuario.findMany({
-    where: { ownerId }
-  });
-  
   const currentDate = new Date();
   const targetMes = currentDate.getMonth() + 1;
   const targetAno = currentDate.getFullYear();
   const startDate = new Date(targetAno, targetMes - 1, 1);
   const endDate = new Date(targetAno, targetMes, 0, 23, 59, 59, 999);
 
-  const despesas = await prisma.despesa.findMany({
-    where: {
-      ownerId,
-      data: {
-        gte: startDate,
-        lte: endDate,
+  const [usuarios, despesas] = await Promise.all([
+    prisma.usuario.findMany({
+      where: { ownerId }
+    }),
+    prisma.despesa.findMany({
+      where: {
+        ownerId,
+        data: {
+          gte: startDate,
+          lte: endDate,
+        }
+      },
+      include: {
+        pagoPor: true
+      },
+      orderBy: {
+        vencimento: 'desc'
       }
-    },
-    include: {
-      pagoPor: true
-    },
-    orderBy: {
-      vencimento: 'desc'
-    }
-  });
+    })
+  ]);
 
   let totalMes = 0;
   let totalPago = 0;
