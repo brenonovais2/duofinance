@@ -11,29 +11,29 @@ export default async function CartoesPage() {
   const ownerId = orgId || userId;
   if (!ownerId) redirect("/sign-in");
 
-  const cartoes = await prisma.cartao.findMany({
-    where: { ownerId },
-    orderBy: { nome: 'asc' },
-    include: { faturas: true }
-  });
-
-  const faturas = await prisma.fatura.findMany({
-    where: { ownerId },
-    include: {
-      cartao: true,
-      despesas: {
-        orderBy: { data: 'desc' }
-      }
-    },
-    orderBy: [
-      { ano: 'desc' },
-      { mes: 'desc' }
-    ]
-  });
-
-  const usuarios = await prisma.usuario.findMany({
-    where: { ownerId }
-  });
+  const [cartoes, faturas, usuarios] = await Promise.all([
+    prisma.cartao.findMany({
+      where: { ownerId },
+      orderBy: { nome: 'asc' },
+      include: { faturas: true }
+    }),
+    prisma.fatura.findMany({
+      where: { ownerId },
+      include: {
+        cartao: true,
+        despesas: {
+          orderBy: { data: 'desc' }
+        }
+      },
+      orderBy: [
+        { ano: 'desc' },
+        { mes: 'desc' }
+      ]
+    }),
+    prisma.usuario.findMany({
+      where: { ownerId }
+    })
+  ]);
 
   return (
     <main className="flex-1 p-6 md:p-10 overflow-y-auto">
