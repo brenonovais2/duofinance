@@ -36,7 +36,7 @@ export default function RelatoriosClient({ data }: { data: RelatoriosData }) {
           <h1 className="text-3xl font-bold text-[#0B032D] tracking-tight">Relatórios</h1>
           <p className="text-gray-500 mt-1">Resumo dos gastos de {getMesNome(data.mes)} de {data.ano}.</p>
         </div>
-        <div>
+        <div className="w-full md:w-auto mt-4 md:mt-0">
           <MonthYearSelector mes={data.mes} ano={data.ano} />
         </div>
       </header>

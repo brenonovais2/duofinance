@@ -101,9 +101,13 @@ export default async function DashboardPage(props: { searchParams: Promise<{ [ke
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-gray-500 mt-1">Acompanhe suas finanças e divida contas facilmente.</p>
           </div>
-          <div className="flex gap-3">
-            <MonthYearSelector mes={targetMes} ano={targetAno} />
-            <DespesaModal usuarios={usuarios} />
+          <div className="flex gap-2 md:gap-3 w-full md:w-auto">
+            <div className="flex-1 md:flex-none">
+              <MonthYearSelector mes={targetMes} ano={targetAno} />
+            </div>
+            <div className="flex-1 md:flex-none">
+              <DespesaModal usuarios={usuarios} />
+            </div>
           </div>
         </header>
 

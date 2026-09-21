@@ -22,12 +22,13 @@ export default function DespesaModal({ usuarios }: { usuarios: Usuario[] }) {
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="bg-[#5E2BFF] text-white px-10 py-5 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105 hover:bg-opacity-90 shadow-lg shadow-[#5E2BFF]/30 flex items-center gap-3"
+        className="bg-[#5E2BFF] text-white px-4 md:px-10 py-3 md:py-5 rounded-full font-bold text-base md:text-xl transition-all duration-300 transform hover:scale-105 hover:bg-opacity-90 shadow-lg shadow-[#5E2BFF]/30 flex items-center justify-center gap-2 md:gap-3 w-full h-full"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
-        Nova Despesa
+        <span className="md:hidden">Despesa</span>
+        <span className="hidden md:inline">Nova Despesa</span>
       </button>
 
       {isOpen && (
