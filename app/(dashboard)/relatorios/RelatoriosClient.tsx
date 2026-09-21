@@ -2,6 +2,7 @@
 
 import React from "react";
 import { DollarSign, PieChart, ArrowRight } from "lucide-react";
+import MonthYearSelector from "@/components/MonthYearSelector";
 
 type RelatoriosData = {
   mes: number;
@@ -34,6 +35,9 @@ export default function RelatoriosClient({ data }: { data: RelatoriosData }) {
         <div>
           <h1 className="text-3xl font-bold text-[#0B032D] tracking-tight">Relatórios</h1>
           <p className="text-gray-500 mt-1">Resumo dos gastos de {getMesNome(data.mes)} de {data.ano}.</p>
+        </div>
+        <div>
+          <MonthYearSelector mes={data.mes} ano={data.ano} />
         </div>
       </header>
 
