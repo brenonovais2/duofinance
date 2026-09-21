@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { Despesa } from "@prisma/client";
 
 export async function addDespesa(formData: FormData) {
   const { userId, orgId } = await auth();
@@ -18,6 +19,11 @@ export async function addDespesa(formData: FormData) {
   const vencimento = vencimentoStr ? new Date(vencimentoStr) : new Date();
   const statusPago = formData.get("statusPago") === "on";
 
+  const tipoRateio = formData.get("tipoRateio") as string || "50_50";
+  const beneficiadoId = formData.get("beneficiadoId") as string || null;
+  const rateioPagadorStr = formData.get("rateioPagador") as string;
+  const rateioPagador = rateioPagadorStr ? parseFloat(rateioPagadorStr) : null;
+
   await prisma.despesa.create({
     data: {
       ownerId,
@@ -27,6 +33,9 @@ export async function addDespesa(formData: FormData) {
       categoria,
       vencimento,
       statusPago,
+      tipoRateio,
+      beneficiadoId,
+      rateioPagador,
     },
   });
 
@@ -71,6 +80,11 @@ export async function editDespesaAction(id: string, formData: FormData, updateFu
   const vencimentoStr = formData.get("vencimento") as string;
   const vencimento = vencimentoStr ? new Date(vencimentoStr) : new Date();
 
+  const tipoRateio = formData.get("tipoRateio") as string || "50_50";
+  const beneficiadoId = formData.get("beneficiadoId") as string || null;
+  const rateioPagadorStr = formData.get("rateioPagador") as string;
+  const rateioPagador = rateioPagadorStr ? parseFloat(rateioPagadorStr) : null;
+
   const despesaAtual = await prisma.despesa.findFirst({
     where: { id, ownerId }
   });
@@ -79,7 +93,7 @@ export async function editDespesaAction(id: string, formData: FormData, updateFu
 
   if (updateFuture && despesaAtual.totalParcelas && despesaAtual.totalParcelas > 1) {
     // Buscar parcelas futuras (incluindo a atual)
-    let futuras: any[] = [];
+    let futuras: Despesa[] = [];
     
     if (despesaAtual.grupoParcelamentoId) {
       futuras = await prisma.despesa.findMany({
@@ -106,7 +120,6 @@ export async function editDespesaAction(id: string, formData: FormData, updateFu
 
     // Atualizar uma a uma para garantir a descrição correta
     for (const p of futuras) {
-      const isCurrent = p.id === despesaAtual.id;
       // Calcula a diferença de meses em relação à parcela atual que foi editada
       // para manter as datas corretas nas faturas seguintes
       const mesesDiff = (p.parcelaAtual || 1) - (despesaAtual.parcelaAtual || 1);
@@ -121,7 +134,10 @@ export async function editDespesaAction(id: string, formData: FormData, updateFu
           valor,
           pagoPorId,
           categoria,
-          vencimento: novaDataVencimento
+          vencimento: novaDataVencimento,
+          tipoRateio,
+          beneficiadoId,
+          rateioPagador
         }
       });
     }
@@ -139,7 +155,10 @@ export async function editDespesaAction(id: string, formData: FormData, updateFu
         valor,
         pagoPorId,
         categoria,
-        vencimento
+        vencimento,
+        tipoRateio,
+        beneficiadoId,
+        rateioPagador
       }
     });
   }

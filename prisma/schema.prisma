@@ -49,6 +49,10 @@ model Despesa {
   pagoPorId     String
   pagoPor       Usuario  @relation("DespesasPagas", fields: [pagoPorId], references: [id])
 
+  tipoRateio    String   @default("50_50")
+  beneficiadoId String?
+  rateioPagador Float?
+
   cartaoId      String?
   cartao        Cartao?  @relation(fields: [cartaoId], references: [id])
   faturaId      String?

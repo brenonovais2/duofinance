@@ -32,6 +32,9 @@ type Despesa = {
   };
   totalParcelas?: number | null;
   parcelaAtual?: number | null;
+  tipoRateio?: string | null;
+  beneficiadoId?: string | null;
+  rateioPagador?: number | null;
 };
 
 export default function LancamentosClient({ despesas, usuarios }: { despesas: Despesa[], usuarios: { id: string, nome: string }[] }) {

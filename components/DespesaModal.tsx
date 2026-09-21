@@ -10,6 +10,7 @@ interface Usuario {
 
 export default function DespesaModal({ usuarios }: { usuarios: Usuario[] }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [tipoRateio, setTipoRateio] = useState("50_50");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -105,7 +106,56 @@ export default function DespesaModal({ usuarios }: { usuarios: Usuario[] }) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 mt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Divisão</label>
+                  <select 
+                    name="tipoRateio" 
+                    value={tipoRateio}
+                    onChange={(e) => setTipoRateio(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#5E2BFF]/50 bg-white"
+                  >
+                    <option value="50_50">50% / 50%</option>
+                    <option value="INDIVIDUAL">100% Individual</option>
+                    <option value="CUSTOM_PERCENT">Personalizada (%)</option>
+                    <option value="CUSTOM_VALUE">Personalizada (R$)</option>
+                  </select>
+                </div>
+
+                {tipoRateio === "INDIVIDUAL" && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">De quem é o gasto?</label>
+                    <select 
+                      name="beneficiadoId" 
+                      required
+                      className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#5E2BFF]/50 bg-white"
+                    >
+                      <option value="">Selecione...</option>
+                      {usuarios.map(u => (
+                        <option key={u.id} value={u.id}>{u.nome}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {(tipoRateio === "CUSTOM_PERCENT" || tipoRateio === "CUSTOM_VALUE") && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      {tipoRateio === "CUSTOM_PERCENT" ? "Parte de quem pagou (%)" : "Parte de quem pagou (R$)"}
+                    </label>
+                    <input 
+                      name="rateioPagador" 
+                      type="number" 
+                      step="0.01"
+                      required
+                      className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#5E2BFF]/50"
+                      placeholder={tipoRateio === "CUSTOM_PERCENT" ? "Ex: 70" : "Ex: 150.00"}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 mt-4">
                 <input 
                   type="checkbox" 
                   name="statusPago" 
