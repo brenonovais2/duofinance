@@ -92,7 +92,7 @@ export default function MonthYearSelector({ mes, ano }: MonthYearSelectorProps) 
 
       {isOpen && (
         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 bg-white border border-gray-100 rounded-3xl shadow-2xl w-72 md:w-80 z-50 overflow-hidden flex animate-in fade-in zoom-in-95 duration-200">
-          <div className="w-1/2 border-r border-gray-50 max-h-64 md:max-h-72 overflow-y-auto">
+          <div className="w-1/2 border-r border-gray-50 max-h-64 md:max-h-72 overflow-y-auto overscroll-contain">
             {meses.map((m, idx) => {
               const isSelected = mes === idx + 1;
               return (
@@ -106,7 +106,7 @@ export default function MonthYearSelector({ mes, ano }: MonthYearSelectorProps) 
               );
             })}
           </div>
-          <div className="w-1/2 max-h-64 md:max-h-72 overflow-y-auto bg-[#F2F5F7]">
+          <div className="w-1/2 max-h-64 md:max-h-72 overflow-y-auto overscroll-contain bg-[#F2F5F7]">
             {anos.map((a) => {
               const isSelected = ano === a;
               return (
