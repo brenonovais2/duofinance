@@ -4,8 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton, OrganizationSwitcher } from "@clerk/nextjs";
+import GerenciarUsuarios from "@/components/GerenciarUsuarios";
 
-export default function Sidebar() {
+export default function Sidebar({ usuarios = [] }: { usuarios?: { id: string, nome: string }[] }) {
   const pathname = usePathname();
 
   const navItems = [
@@ -49,40 +50,63 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-full md:w-64 bg-white border-r border-gray-100 flex flex-col flex-shrink-0">
-      <div className="p-6 flex items-center justify-center md:justify-start">
-        <Image 
-          src="/logo.png" 
-          alt="DuoFinance Logo" 
-          width={140} 
-          height={50} 
-          className="object-contain"
+    <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-gray-100 flex flex-col flex-shrink-0 z-10">
+
+      {/* Mobile Top Header (Org + User above Logo) */}
+      <div className="md:hidden flex justify-between items-center p-4 border-b border-gray-100">
+        <OrganizationSwitcher hidePersonal={false} />
+        <UserButton showName={false} />
+      </div>
+
+      <div className="p-4 md:p-6 flex items-center justify-center md:justify-start">
+        <Image
+          src="/logo.png"
+          alt="DuoFinance Logo"
+          width={160}
+          height={50}
+          className="object-contain hidden md:block"
+          priority
+        />
+        <Image
+          src="/logo.png"
+          alt="DuoFinance Logo"
+          width={150}
+          height={20}
+          className="object-contain block md:hidden"
           priority
         />
       </div>
-      <nav className="flex-1 px-4 py-4 space-y-2">
+
+      {/* Navigation (Horizontal on mobile, Vertical on desktop) */}
+      <nav className="flex-1 px-2 md:px-4 py-2 md:py-4 flex flex-row md:flex-col justify-between md:justify-start gap-1 md:gap-2 overflow-x-auto no-scrollbar border-b md:border-none border-gray-100">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link 
-              key={item.href} 
-              href={item.href} 
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors ${
-                isActive 
-                  ? "bg-[#5E2BFF]/10 text-[#5E2BFF]" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-[#0B032D]"
-              }`}
+            <Link
+              key={item.href}
+              href={item.href}
+              title={item.name}
+              className={`flex flex-1 md:flex-none items-center justify-center md:justify-start gap-3 px-2 md:px-4 py-3 rounded-xl font-semibold transition-colors ${isActive
+                ? "bg-[#5E2BFF]/10 text-[#5E2BFF]"
+                : "text-gray-500 hover:bg-gray-50 hover:text-[#0B032D]"
+                }`}
             >
               {item.icon}
-              {item.name}
+              <span className="hidden md:inline">{item.name}</span>
             </Link>
           );
         })}
+
+        {/* Gerenciar Usuários renderizado como Aba no Mobile, Item na Sidebar no Desktop */}
+        <GerenciarUsuarios usuarios={usuarios} />
       </nav>
-      <div className="p-4 border-t border-gray-100 flex flex-col items-center justify-center md:justify-start gap-4">
+
+      {/* Desktop Bottom Controls (Hidden on Mobile) */}
+      <div className="hidden md:flex p-4 border-t border-gray-100 flex-col items-center justify-center md:justify-start gap-4">
         <OrganizationSwitcher hidePersonal={false} />
         <UserButton showName />
       </div>
     </aside>
   );
 }
+

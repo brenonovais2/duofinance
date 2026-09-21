@@ -112,26 +112,26 @@ export default async function DashboardPage(props: { searchParams: Promise<{ [ke
         </header>
 
         {/* Resumo Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-10">
+          <div className="col-span-2 md:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
             <h3 className="text-gray-500 font-medium mb-2">Total do Mês</h3>
             <p className="text-3xl font-bold text-[#0B032D]">{formatCurrency(totalMes)}</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
-            <h3 className="text-gray-500 font-medium mb-2">Total Pago</h3>
-            <p className="text-3xl font-bold text-green-600">{formatCurrency(totalPago)}</p>
+          <div className="col-span-1 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+            <h3 className="text-gray-500 font-medium mb-2 text-sm md:text-base">Total Pago</h3>
+            <p className="text-xl md:text-3xl font-bold text-green-600 truncate">{formatCurrency(totalPago)}</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
-            <h3 className="text-gray-500 font-medium mb-2">Pendente</h3>
-            <p className="text-3xl font-bold text-red-500">{formatCurrency(pendente)}</p>
+          <div className="col-span-1 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+            <h3 className="text-gray-500 font-medium mb-2 text-sm md:text-base">Pendente</h3>
+            <p className="text-xl md:text-3xl font-bold text-red-500 truncate">{formatCurrency(pendente)}</p>
           </div>
         </div>
 
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
           {/* Categórias / Tabela de Despesas */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-8 order-2 lg:order-1">
             <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold mb-6">Gastos por Categoria</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -175,27 +175,22 @@ export default async function DashboardPage(props: { searchParams: Promise<{ [ke
           </div>
 
           {/* Gráfico Placeholder & Stats Pessoais */}
-          <div className="space-y-8">
+          <div className="space-y-8 order-1 lg:order-2">
             <div className="bg-gradient-to-br from-[#5E2BFF] to-[#3B12B3] p-6 md:p-8 rounded-3xl shadow-lg text-white">
               <h2 className="text-xl font-bold mb-6 text-[#FDB833]">Resumo por Pagante</h2>
               {usuarios.length === 0 ? (
                 <p className="text-white/70">Nenhum pagante cadastrado.</p>
               ) : (
-                <div className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-1 gap-4 md:space-y-6 md:gap-0">
                   {Object.values(pagamentosPorUsuario).map((u, i) => (
-                    <React.Fragment key={i}>
-                      {i > 0 && <div className="w-full h-px bg-white/20"></div>}
-                      <div>
-                        <p className="text-white/70 font-medium mb-1">Total pago por {u.nome}</p>
-                        <p className="text-3xl font-bold">{formatCurrency(u.totalPago)}</p>
-                      </div>
-                    </React.Fragment>
+                    <div key={i} className="flex flex-col">
+                      <p className="text-white/70 text-xs md:text-base font-medium mb-1 truncate">Total por {u.nome}</p>
+                      <p className="text-xl md:text-3xl font-bold truncate">{formatCurrency(u.totalPago)}</p>
+                    </div>
                   ))}
                 </div>
               )}
             </div>
-            
-            <GerenciarUsuarios usuarios={usuarios} />
           </div>
         </div>
       </main>
