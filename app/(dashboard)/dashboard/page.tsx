@@ -6,17 +6,28 @@ import DespesaModal from "@/components/DespesaModal";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import GerenciarUsuarios from "@/components/GerenciarUsuarios";
+import MonthYearSelector from "@/components/MonthYearSelector";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const searchParams = await props.searchParams;
   const { userId, orgId } = await auth();
   const ownerId = orgId || userId;
   if (!ownerId) redirect("/sign-in");
 
   const currentDate = new Date();
-  const targetMes = currentDate.getMonth() + 1;
-  const targetAno = currentDate.getFullYear();
+  
+  let targetMes = currentDate.getMonth() + 1;
+  let targetAno = currentDate.getFullYear();
+
+  if (searchParams?.mes && typeof searchParams.mes === 'string') {
+    targetMes = parseInt(searchParams.mes);
+  }
+  if (searchParams?.ano && typeof searchParams.ano === 'string') {
+    targetAno = parseInt(searchParams.ano);
+  }
+
   const startDate = new Date(targetAno, targetMes - 1, 1);
   const endDate = new Date(targetAno, targetMes, 0, 23, 59, 59, 999);
 
@@ -90,9 +101,13 @@ export default async function DashboardPage() {
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-gray-500 mt-1">Acompanhe suas finanças e divida contas facilmente.</p>
           </div>
-          <div className="flex gap-3">
-            {/* Gestão de Pagantes seria um modal, mas por simplicidade, podemos linkar ou ter outro modal */}
-            <DespesaModal usuarios={usuarios} />
+          <div className="flex gap-2 md:gap-3 w-full md:w-auto">
+            <div className="flex-1 md:flex-none">
+              <MonthYearSelector mes={targetMes} ano={targetAno} />
+            </div>
+            <div className="flex-1 md:flex-none">
+              <DespesaModal usuarios={usuarios} />
+            </div>
           </div>
         </header>
 
