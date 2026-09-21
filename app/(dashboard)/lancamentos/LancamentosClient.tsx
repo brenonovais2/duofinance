@@ -16,6 +16,7 @@ import {
   MoreHorizontal
 } from "lucide-react";
 import { toggleDespesaStatus, deleteDespesa } from "../../actions";
+import EditarDespesaModal from "@/components/EditarDespesaModal";
 
 // Tipo para receber do Prisma (simplificado)
 type Despesa = {
@@ -29,6 +30,8 @@ type Despesa = {
     id: string;
     nome: string;
   };
+  totalParcelas?: number | null;
+  parcelaAtual?: number | null;
 };
 
 export default function LancamentosClient({ despesas, usuarios }: { despesas: Despesa[], usuarios: { id: string, nome: string }[] }) {
@@ -40,6 +43,7 @@ export default function LancamentosClient({ despesas, usuarios }: { despesas: De
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas Categorias");
   const [statusFiltro, setStatusFiltro] = useState("Todos (Status)");
   const [quemPagouFiltro, setQuemPagouFiltro] = useState("Todos (Quem Pagou)");
+  const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -305,7 +309,7 @@ export default function LancamentosClient({ despesas, usuarios }: { despesas: De
                           >
                             {item.statusPago ? <Clock className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
                           </button>
-                          <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar (Em breve)">
+                          <button onClick={() => setEditingDespesa(item)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button onClick={() => handleDelete(item.id)} className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Excluir">
@@ -321,6 +325,12 @@ export default function LancamentosClient({ despesas, usuarios }: { despesas: De
           </table>
         </div>
       </div>
+      <EditarDespesaModal 
+        isOpen={!!editingDespesa} 
+        onClose={() => setEditingDespesa(null)} 
+        despesa={editingDespesa}
+        usuarios={usuarios}
+      />
     </main>
   );
 }

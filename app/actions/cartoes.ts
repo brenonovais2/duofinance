@@ -90,6 +90,8 @@ export async function addDespesaParcelada(formData: FormData, cartaoId: string) 
   
   if (!cartao) throw new Error("Cartão não encontrado");
 
+  const grupoParcelamentoId = parcelas > 1 ? crypto.randomUUID() : null;
+
   // Logic to generate parcels and associate them with respective invoices
   let mesAtual = dataCompra.getMonth() + 1; // 1-12
   let anoAtual = dataCompra.getFullYear();
@@ -138,7 +140,8 @@ export async function addDespesaParcelada(formData: FormData, cartaoId: string) 
         cartaoId: cartao.id,
         faturaId: fatura.id,
         parcelaAtual: parcelas > 1 ? i : null,
-        totalParcelas: parcelas > 1 ? parcelas : null
+        totalParcelas: parcelas > 1 ? parcelas : null,
+        grupoParcelamentoId
       }
     });
 
