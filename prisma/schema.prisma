@@ -12,6 +12,7 @@ model Usuario {
   ownerId     String?   
   nome        String
   despesas    Despesa[] @relation("DespesasPagas")
+  despesasRecorrentes DespesaRecorrente[] @relation("RecorrentesPagas")
 }
 
 model Cartao {
@@ -23,6 +24,7 @@ model Cartao {
   diaFechamento Int
   faturas       Fatura[]
   despesas      Despesa[]
+  despesasRecorrentes DespesaRecorrente[]
 }
 
 model Fatura {
@@ -61,4 +63,25 @@ model Despesa {
   parcelaAtual  Int?
   totalParcelas Int?
   grupoParcelamentoId String?
+}
+
+model DespesaRecorrente {
+  id            String   @id @default(uuid())
+  ownerId       String   @default("")
+  descricao     String
+  valor         Float
+  categoria     String   @default("Outros")
+  diaVencimento Int
+  status        String   @default("Ativa") // Ativa, Pausada, Arquivada
+  ultimaGeracao DateTime?
+
+  pagoPorId     String
+  pagoPor       Usuario  @relation("RecorrentesPagas", fields: [pagoPorId], references: [id])
+
+  tipoRateio    String   @default("50_50")
+  beneficiadoId String?
+  rateioPagador Float?
+
+  cartaoId      String?
+  cartao        Cartao?  @relation(fields: [cartaoId], references: [id])
 }

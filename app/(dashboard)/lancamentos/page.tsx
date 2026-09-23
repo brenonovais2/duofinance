@@ -12,7 +12,7 @@ export default async function LancamentosPage() {
   if (!ownerId) redirect("/sign-in");
 
   // Busca os dados no banco de dados em paralelo
-  const [usuarios, despesas] = await Promise.all([
+  const [usuarios, despesas, recorrentes, cartoes] = await Promise.all([
     prisma.usuario.findMany({
       where: { ownerId }
     }),
@@ -26,8 +26,19 @@ export default async function LancamentosPage() {
       orderBy: {
         vencimento: 'desc'
       }
+    }),
+    prisma.despesaRecorrente.findMany({
+      where: { ownerId },
+      include: {
+        pagoPor: {
+          select: { id: true, nome: true }
+        }
+      }
+    }),
+    prisma.cartao.findMany({
+      where: { ownerId }
     })
   ]);
 
-  return <LancamentosClient despesas={despesas} usuarios={usuarios} />;
+  return <LancamentosClient despesas={despesas} usuarios={usuarios} recorrentes={recorrentes} cartoes={cartoes} />;
 }
