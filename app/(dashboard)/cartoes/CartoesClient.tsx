@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { CreditCard, Plus, FileText, ChevronDown, CheckCircle2, Circle, AlertCircle, Edit2, Trash2 } from "lucide-react";
 import { Cartao, Fatura, Despesa } from "@prisma/client";
-import { addCartao, updateFaturaStatus, addDespesaParcelada, updateCartao, updateDespesa, deleteDespesa } from "@/app/actions/cartoes";
+import { addCartao, updateFaturaStatus, addDespesaParcelada, updateCartao, updateDespesa, deleteDespesa, deleteCartao } from "@/app/actions/cartoes";
 
 type FaturaComDetalhes = Fatura & { cartao: Cartao, despesas: Despesa[] };
 
@@ -84,13 +84,26 @@ export default function CartoesClient({ cartoes, faturas, usuarios }: CartoesCli
                   <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
                     <CreditCard className="w-6 h-6" />
                   </div>
-                  <button 
-                    onClick={() => setCartaoEditando(cartao)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                    title="Editar Cartão"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setCartaoEditando(cartao)}
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      title="Editar Cartão"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        if(confirm('Tem certeza que deseja excluir este cartão? Todas as faturas e despesas vinculadas serão apagadas.')) {
+                          await deleteCartao(cartao.id);
+                        }
+                      }}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Excluir Cartão"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">{cartao.nome}</h3>
                 <div className="mt-4 space-y-2">

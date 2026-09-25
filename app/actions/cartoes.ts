@@ -209,3 +209,31 @@ export async function deleteDespesa(id: string) {
 
   revalidatePath("/cartoes");
 }
+
+export async function deleteCartao(id: string) {
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
+
+  // Remove despesas vinculadas ao cartão
+  await prisma.despesa.deleteMany({
+    where: { cartaoId: id, ownerId },
+  });
+
+  // Remove vínculo do cartão em despesas recorrentes
+  await prisma.despesaRecorrente.updateMany({
+    where: { cartaoId: id, ownerId },
+    data: { cartaoId: null },
+  });
+
+  // Remove o cartão (faturas serão removidas via onDelete: Cascade se configurado, ou remover explicitamente caso contrário)
+  await prisma.fatura.deleteMany({
+    where: { cartaoId: id, ownerId },
+  });
+
+  await prisma.cartao.deleteMany({
+    where: { id, ownerId },
+  });
+
+  revalidatePath("/cartoes");
+}
