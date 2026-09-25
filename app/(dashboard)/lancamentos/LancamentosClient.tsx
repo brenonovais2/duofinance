@@ -17,6 +17,23 @@ import {
 } from "lucide-react";
 import { toggleDespesaStatus, deleteDespesa } from "../../actions";
 import EditarDespesaModal from "@/components/EditarDespesaModal";
+import RecorrentesTab from "./RecorrentesTab";
+
+// Tipo para DespesaRecorrente
+export type DespesaRecorrenteType = {
+  id: string;
+  descricao: string;
+  valor: number;
+  categoria: string;
+  diaVencimento: number;
+  status: string;
+  pagoPorId: string;
+  pagoPor: { id: string; nome: string };
+  tipoRateio: string;
+  beneficiadoId: string | null;
+  rateioPagador: number | null;
+  cartaoId: string | null;
+};
 
 // Tipo para receber do Prisma (simplificado)
 type Despesa = {
@@ -37,7 +54,18 @@ type Despesa = {
   rateioPagador?: number | null;
 };
 
-export default function LancamentosClient({ despesas, usuarios }: { despesas: Despesa[], usuarios: { id: string, nome: string }[] }) {
+export default function LancamentosClient({ 
+  despesas, 
+  usuarios,
+  recorrentes = [],
+  cartoes = []
+}: { 
+  despesas: Despesa[], 
+  usuarios: { id: string, nome: string }[],
+  recorrentes?: DespesaRecorrenteType[],
+  cartoes?: any[]
+}) {
+  const [activeTab, setActiveTab] = useState<"Lancamentos" | "Recorrentes">("Lancamentos");
   // Estados dos filtros
   const [busca, setBusca] = useState("");
   const [periodoFiltro, setPeriodoFiltro] = useState("MesAtual");
@@ -122,18 +150,39 @@ export default function LancamentosClient({ despesas, usuarios }: { despesas: De
 
   return (
     <main className="flex-1 p-6 md:p-10 overflow-y-auto bg-gray-50/50">
-      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Lançamentos</h1>
           <p className="text-gray-500 mt-1">O extrato da casa. Acompanhe e gerencie as despesas.</p>
         </div>
-        {/* Usamos o DespesaModal em page.tsx ou Layout, aqui mantemos o visual se não houver o botão real,
-            mas idealmente o Nova Despesa fica acessível em todo lugar. Como Lançamentos é página interna, 
-            vou colocar um aviso ou apenas não renderizar botão redundante. */}
       </header>
 
-      {/* Indicadores de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* Tabs */}
+      <div className="flex space-x-1 bg-gray-200/50 p-1 rounded-xl w-fit mb-8">
+        <button
+          onClick={() => setActiveTab("Lancamentos")}
+          className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === "Lancamentos" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Extrato
+        </button>
+        <button
+          onClick={() => setActiveTab("Recorrentes")}
+          className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === "Recorrentes" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Recorrentes
+        </button>
+      </div>
+
+      {activeTab === "Recorrentes" ? (
+        <RecorrentesTab recorrentes={recorrentes} usuarios={usuarios} cartoes={cartoes} />
+      ) : (
+        <>
+          {/* Indicadores de Resumo */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
           <p className="text-sm font-medium text-gray-500 mb-1">Total Lançado (Filtro)</p>
           <p className="text-3xl font-bold text-gray-900">{formatCurrency(totalLancado)}</p>
@@ -334,6 +383,8 @@ export default function LancamentosClient({ despesas, usuarios }: { despesas: De
         despesa={editingDespesa}
         usuarios={usuarios}
       />
+        </>
+      )}
     </main>
   );
 }

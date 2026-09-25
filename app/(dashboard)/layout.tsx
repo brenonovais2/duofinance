@@ -1,6 +1,7 @@
 import Sidebar from "@/components/Sidebar";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { verificarEGerarDespesasRecorrentes } from "@/app/actions/recorrentes";
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +17,9 @@ export default async function DashboardLayout({
       where: { ownerId },
       orderBy: { nome: 'asc' }
     });
+    
+    // Dispara a verificação de despesas recorrentes
+    await verificarEGerarDespesasRecorrentes(ownerId);
   }
 
   return (
