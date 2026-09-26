@@ -17,7 +17,15 @@ type RelatoriosData = {
     nome: string;
     valor: number;
   }[];
+  evolucaoMensal?: { mes: string; total: number }[];
+  proporcaoAnual?: { nome: string; total: number }[];
 };
+
+import { 
+  CategoriaDonutChart, 
+  EvolucaoMensalBarChart, 
+  ProporcaoPagantePieChart 
+} from "@/components/GraficosRelatorios";
 
 export default function RelatoriosClient({ data }: { data: RelatoriosData }) {
   const formatCurrency = (value: number) => {
@@ -68,42 +76,48 @@ export default function RelatoriosClient({ data }: { data: RelatoriosData }) {
 
 
 
-      {/* Despesas por Categoria */}
-      <div>
-        <h2 className="text-xl font-bold text-[#0B032D] mb-4 flex items-center gap-2">
-          <PieChart className="w-5 h-5 text-gray-400" />
-          Gastos por Categoria
+      {/* Gráficos Interativos */}
+      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 mb-8">
+        {/* Despesas por Categoria (Donut) */}
+        <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full">
+          <h2 className="text-xl font-bold text-[#0B032D] mb-6 flex items-center gap-2">
+            <PieChart className="w-5 h-5 text-[#5E2BFF]" />
+            Gastos por Categoria
+          </h2>
+          <div className="flex-1 flex items-center justify-center">
+            <CategoriaDonutChart data={data.categorias} />
+          </div>
+        </div>
+
+        {/* Proporção Anual por Pagante (Pie) */}
+        <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full">
+          <h2 className="text-xl font-bold text-[#0B032D] mb-6 flex items-center gap-2">
+            <PieChart className="w-5 h-5 text-[#FDB833]" />
+            Proporção de Gastos por Pagante (Ano)
+          </h2>
+          <div className="flex-1 flex items-center justify-center">
+            {data.proporcaoAnual ? (
+              <ProporcaoPagantePieChart data={data.proporcaoAnual} />
+            ) : (
+              <p className="text-gray-500 text-center py-10">Carregando...</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Evolução Mensal (Barras) */}
+      <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 mb-8">
+        <h2 className="text-xl font-bold text-[#0B032D] mb-6 flex items-center gap-2">
+          <DollarSign className="w-5 h-5 text-[#5E2BFF]" />
+          Evolução das Despesas (Ano)
         </h2>
-        
-        {data.categorias.length > 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden max-w-4xl">
-            <div className="divide-y divide-gray-50">
-              {data.categorias.map((cat, index) => {
-                const percentual = (cat.valor / data.totalCasa) * 100;
-                return (
-                  <div key={index} className="p-4 px-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-gray-700">{cat.nome}</span>
-                        <span className="font-bold text-[#0B032D]">{formatCurrency(cat.valor)}</span>
-                      </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2">
-                        <div 
-                          className="bg-[#5E2BFF] h-2 rounded-full" 
-                          style={{ width: `${percentual}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center text-gray-500 max-w-4xl">
-            Nenhuma categoria para exibir neste mês.
-          </div>
-        )}
+        <div className="w-full">
+          {data.evolucaoMensal ? (
+            <EvolucaoMensalBarChart data={data.evolucaoMensal} />
+          ) : (
+            <p className="text-gray-500 text-center py-10">Carregando...</p>
+          )}
+        </div>
       </div>
     </main>
   );
