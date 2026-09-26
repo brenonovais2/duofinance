@@ -4,13 +4,28 @@ import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import MetaModal from "@/components/MetaModal";
 
+import MetaCard from "@/components/MetaCard";
+
 export default function MetasClient({ initialMetas, usuarios }: { initialMetas: any[], usuarios: any[] }) {
   const [metas, setMetas] = useState(initialMetas);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedMeta, setSelectedMeta] = useState<any | null>(null);
 
   useEffect(() => {
     setMetas(initialMetas);
   }, [initialMetas]);
+
+  const handleOpenDetails = (meta: any) => {
+    // Por enquanto, apenas para testes, vamos abrir o form de edicao
+    // No proximo commit, abriremos o modal de detalhes
+    setSelectedMeta(meta);
+    setIsFormOpen(true);
+  };
+
+  const handleNewMeta = () => {
+    setSelectedMeta(null);
+    setIsFormOpen(true);
+  };
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-8">
@@ -24,7 +39,7 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
         </div>
         
         <button 
-          onClick={() => setIsFormOpen(true)}
+          onClick={handleNewMeta}
           className="bg-[#5E2BFF] text-white px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-[#5E2BFF]/90 transition flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
@@ -45,7 +60,7 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
             Comece criando a primeira meta financeira de vocês, como uma viagem, entrada de um carro ou reserva de emergência.
           </p>
           <button 
-            onClick={() => setIsFormOpen(true)}
+            onClick={handleNewMeta}
             className="text-[#5E2BFF] font-medium hover:underline"
           >
             Criar primeira meta
@@ -53,12 +68,12 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* We will render the MetaCards here in future commits */}
           {metas.map(meta => (
-            <div key={meta.id} className="bg-white p-6 rounded-2xl border border-gray-100">
-              <h3 className="font-bold text-lg text-[#0B032D]">{meta.titulo}</h3>
-              <p className="text-sm text-gray-500 mt-1">Valor alvo: R$ {meta.valorAlvo.toFixed(2)}</p>
-            </div>
+            <MetaCard 
+              key={meta.id} 
+              meta={meta} 
+              onClick={handleOpenDetails} 
+            />
           ))}
         </div>
       )}
@@ -67,6 +82,7 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
       <MetaModal 
         isOpen={isFormOpen} 
         onClose={() => setIsFormOpen(false)} 
+        metaParaEditar={selectedMeta}
       />
     </div>
   );
