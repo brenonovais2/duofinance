@@ -73,3 +73,61 @@ export async function getBalancoMensal(mes?: number, ano?: number) {
     categorias: categoriasChart
   };
 }
+
+export async function getEvolucaoAnual(ano?: number) {
+  const { userId, orgId } = await auth();
+  const ownerId = orgId || userId;
+  if (!ownerId) throw new Error("Não autorizado");
+
+  const targetAno = ano || new Date().getFullYear();
+  const startDate = new Date(targetAno, 0, 1); // 1 jan
+  const endDate = new Date(targetAno, 11, 31, 23, 59, 59, 999); // 31 dez
+
+  const [despesasAno, usuarios] = await Promise.all([
+    prisma.despesa.findMany({
+      where: {
+        ownerId,
+        data: {
+          gte: startDate,
+          lte: endDate,
+        }
+      },
+      include: { pagoPor: true }
+    }),
+    prisma.usuario.findMany({
+      where: { ownerId }
+    })
+  ]);
+
+  const mesesNome = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  
+  // Evolução mês a mês
+  const evolucaoMesAMes = mesesNome.map((mes, index) => ({
+    mes,
+    total: 0
+  }));
+
+  // Proporção anual por usuário
+  const pagamentosPorUsuario: Record<string, { nome: string, total: number }> = {};
+  usuarios.forEach((u: { id: string; nome: string }) => {
+    pagamentosPorUsuario[u.id] = { nome: u.nome, total: 0 };
+  });
+
+  despesasAno.forEach(d => {
+    // Agrupa por mês
+    const mesIndex = d.data.getMonth();
+    evolucaoMesAMes[mesIndex].total += d.valor;
+
+    // Agrupa por pagante
+    if (pagamentosPorUsuario[d.pagoPorId]) {
+      pagamentosPorUsuario[d.pagoPorId].total += d.valor;
+    }
+  });
+
+  const proporcaoAnual = Object.values(pagamentosPorUsuario).filter(u => u.total > 0);
+
+  return {
+    evolucaoMensal: evolucaoMesAMes,
+    proporcaoAnual
+  };
+}
