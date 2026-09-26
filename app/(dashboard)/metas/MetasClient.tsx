@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
+import MetaModal from "@/components/MetaModal";
 
 export default function MetasClient({ initialMetas, usuarios }: { initialMetas: any[], usuarios: any[] }) {
   const [metas, setMetas] = useState(initialMetas);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  useEffect(() => {
+    setMetas(initialMetas);
+  }, [initialMetas]);
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-8">
@@ -18,6 +24,7 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
         </div>
         
         <button 
+          onClick={() => setIsFormOpen(true)}
           className="bg-[#5E2BFF] text-white px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-[#5E2BFF]/90 transition flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
@@ -37,7 +44,10 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
           <p className="text-gray-500 max-w-md mx-auto mb-6">
             Comece criando a primeira meta financeira de vocês, como uma viagem, entrada de um carro ou reserva de emergência.
           </p>
-          <button className="text-[#5E2BFF] font-medium hover:underline">
+          <button 
+            onClick={() => setIsFormOpen(true)}
+            className="text-[#5E2BFF] font-medium hover:underline"
+          >
             Criar primeira meta
           </button>
         </div>
@@ -52,6 +62,12 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
           ))}
         </div>
       )}
+
+      {/* MODAL DE CRIAÇÃO/EDIÇÃO */}
+      <MetaModal 
+        isOpen={isFormOpen} 
+        onClose={() => setIsFormOpen(false)} 
+      />
     </div>
   );
 }
