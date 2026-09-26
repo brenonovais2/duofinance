@@ -5,20 +5,31 @@ import { Plus } from "lucide-react";
 import MetaModal from "@/components/MetaModal";
 
 import MetaCard from "@/components/MetaCard";
+import MetaDetalhes from "@/components/MetaDetalhes";
 
 export default function MetasClient({ initialMetas, usuarios }: { initialMetas: any[], usuarios: any[] }) {
   const [metas, setMetas] = useState(initialMetas);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
   const [selectedMeta, setSelectedMeta] = useState<any | null>(null);
 
   useEffect(() => {
     setMetas(initialMetas);
+    // Atualizar a selectedMeta se os dados mudarem enquanto o modal estiver aberto
+    if (selectedMeta) {
+      const updatedMeta = initialMetas.find(m => m.id === selectedMeta.id);
+      if (updatedMeta) setSelectedMeta(updatedMeta);
+    }
   }, [initialMetas]);
 
   const handleOpenDetails = (meta: any) => {
-    // Por enquanto, apenas para testes, vamos abrir o form de edicao
-    // No proximo commit, abriremos o modal de detalhes
     setSelectedMeta(meta);
+    setIsDetalhesOpen(true);
+  };
+
+  const handleEditMeta = (meta: any) => {
+    setSelectedMeta(meta);
+    setIsDetalhesOpen(false);
     setIsFormOpen(true);
   };
 
@@ -81,8 +92,21 @@ export default function MetasClient({ initialMetas, usuarios }: { initialMetas: 
       {/* MODAL DE CRIAÇÃO/EDIÇÃO */}
       <MetaModal 
         isOpen={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
+        onClose={() => {
+          setIsFormOpen(false);
+          // Se estava editando, ao fechar volta para os detalhes (opcional)
+          if (selectedMeta) setIsDetalhesOpen(true);
+        }} 
         metaParaEditar={selectedMeta}
+      />
+
+      {/* MODAL DE DETALHES (APORTES E RETIRADAS) */}
+      <MetaDetalhes
+        isOpen={isDetalhesOpen}
+        onClose={() => setIsDetalhesOpen(false)}
+        meta={selectedMeta}
+        usuarios={usuarios}
+        onEdit={handleEditMeta}
       />
     </div>
   );
