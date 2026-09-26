@@ -1,6 +1,6 @@
 import React from "react";
 import RelatoriosClient from "./RelatoriosClient";
-import { getBalancoMensal } from "@/app/actions/relatorios";
+import { getBalancoMensal, getEvolucaoAnual } from "@/app/actions/relatorios";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,15 @@ export default async function RelatoriosPage(props: { searchParams: Promise<{ [k
     ano = parseInt(searchParams.ano);
   }
 
-  const data = await getBalancoMensal(mes, ano);
+  const dataMensal = await getBalancoMensal(mes, ano);
+  const dataAnual = await getEvolucaoAnual(ano);
 
-  return <RelatoriosClient data={data} />;
+  // Combina os dados
+  const relatoriosData = {
+    ...dataMensal,
+    evolucaoMensal: dataAnual.evolucaoMensal,
+    proporcaoAnual: dataAnual.proporcaoAnual
+  };
+
+  return <RelatoriosClient data={relatoriosData} />;
 }
