@@ -44,7 +44,7 @@ export function CategoriaDonutChart({ data }: { data: { nome: string; valor: num
             ))}
           </Pie>
           <Tooltip 
-            formatter={(value: number) => [formatCurrency(value), "Valor"]} 
+            formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]} 
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
           />
           <Legend verticalAlign="bottom" height={36} />
@@ -70,7 +70,7 @@ export function EvolucaoMensalBarChart({ data }: { data: { mes: string; total: n
           />
           <Tooltip 
             cursor={{ fill: '#F3F4F6' }}
-            formatter={(value: number) => [formatCurrency(value), "Total"]}
+            formatter={(value: any) => [formatCurrency(Number(value)), "Total"]}
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
           />
           <Bar dataKey="total" fill="#5E2BFF" radius={[4, 4, 0, 0]} barSize={32} />
@@ -102,7 +102,7 @@ export function ProporcaoPagantePieChart({ data }: { data: { nome: string; total
             ))}
           </Pie>
           <Tooltip 
-            formatter={(value: number) => [formatCurrency(value), "Total Gasto no Ano"]} 
+            formatter={(value: any) => [formatCurrency(Number(value)), "Total Gasto no Ano"]} 
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
           />
           <Legend verticalAlign="bottom" height={36} />
