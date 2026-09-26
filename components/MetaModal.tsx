@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { X, Save } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, Save, Image as ImageIcon } from "lucide-react";
 import { createMeta, updateMeta } from "@/app/actions/metas";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface MetaModalProps {
   isOpen: boolean;
@@ -13,15 +14,41 @@ interface MetaModalProps {
 
 export default function MetaModal({ isOpen, onClose, metaParaEditar }: MetaModalProps) {
   const router = useRouter();
-  const [titulo, setTitulo] = useState(metaParaEditar?.titulo || "");
-  const [valorAlvo, setValorAlvo] = useState(metaParaEditar?.valorAlvo?.toString() || "");
-  const [dataAlvo, setDataAlvo] = useState(
-    metaParaEditar?.dataAlvo ? new Date(metaParaEditar.dataAlvo).toISOString().split("T")[0] : ""
-  );
-  const [fotoCapa, setFotoCapa] = useState(metaParaEditar?.fotoCapa || "");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [titulo, setTitulo] = useState("");
+  const [valorAlvo, setValorAlvo] = useState("");
+  const [dataAlvo, setDataAlvo] = useState("");
+  const [fotoCapa, setFotoCapa] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      setTitulo(metaParaEditar?.titulo || "");
+      setValorAlvo(metaParaEditar?.valorAlvo?.toString() || "");
+      setDataAlvo(
+        metaParaEditar?.dataAlvo ? new Date(metaParaEditar.dataAlvo).toISOString().split("T")[0] : ""
+      );
+      setFotoCapa(metaParaEditar?.fotoCapa || "");
+    }
+  }, [isOpen, metaParaEditar]);
+
   if (!isOpen) return null;
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("A imagem deve ter no máximo 5MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFotoCapa(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,14 +138,34 @@ export default function MetaModal({ isOpen, onClose, metaParaEditar }: MetaModal
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              URL da Foto de Capa (Opcional)
+              Foto de Capa (Opcional)
             </label>
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full h-32 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-[#5E2BFF]/50 transition-colors relative overflow-hidden group"
+            >
+              {fotoCapa ? (
+                <>
+                  <Image src={fotoCapa} alt="Preview" fill className="object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="text-white font-medium text-sm">Alterar Foto</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-10 h-10 bg-[#5E2BFF]/10 text-[#5E2BFF] rounded-full flex items-center justify-center mb-2">
+                    <ImageIcon className="w-5 h-5" />
+                  </div>
+                  <span className="text-sm text-gray-500 font-medium">Toque para escolher uma foto</span>
+                </>
+              )}
+            </div>
             <input
-              type="url"
-              value={fotoCapa}
-              onChange={(e) => setFotoCapa(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5E2BFF]/20 focus:border-[#5E2BFF] outline-none transition-all"
-              placeholder="https://exemplo.com/foto.jpg"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
             />
           </div>
 
