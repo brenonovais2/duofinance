@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { CreditCard, Plus, FileText, ChevronDown, CheckCircle2, Circle, AlertCircle, Edit2, Trash2 } from "lucide-react";
 import { Cartao, Fatura, Despesa } from "@prisma/client";
 import { addCartao, updateFaturaStatus, addDespesaParcelada, updateCartao, updateDespesa, deleteDespesa, deleteCartao } from "@/app/actions/cartoes";
+import { getCartaoDates } from "@/lib/dateUtils";
 
 type FaturaComDetalhes = Fatura & { cartao: Cartao, despesas: Despesa[] };
 
@@ -105,23 +106,48 @@ export default function CartoesClient({ cartoes, faturas, usuarios }: CartoesCli
                     </button>
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">{cartao.nome}</h3>
-                <div className="mt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Limite</span>
-                    <span className="font-medium text-gray-900">
-                      {cartao.limite ? `R$ ${cartao.limite.toFixed(2)}` : 'Não definido'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Fechamento</span>
-                    <span className="font-medium text-gray-900">Dia {cartao.diaFechamento}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Vencimento</span>
-                    <span className="font-medium text-gray-900">Dia {cartao.diaVencimento}</span>
-                  </div>
-                </div>
+                {(() => {
+                  const dates = getCartaoDates(cartao.diaFechamento, cartao.diaVencimento);
+                  return (
+                    <>
+                      <h3 className="text-lg font-semibold text-gray-900">{cartao.nome}</h3>
+                      
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                          Melhor dia: {dates.melhorDiaCompra}
+                        </span>
+                        
+                        {dates.fechandoEmBreve ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200" title="A fatura fechará em breve!">
+                            <AlertCircle className="w-3 h-3" />
+                            Fecha em {dates.diasParaFechamento} {dates.diasParaFechamento === 1 ? 'dia' : 'dias'}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            Fecha em {dates.diasParaFechamento} {dates.diasParaFechamento === 1 ? 'dia' : 'dias'}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-4 space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500">Limite</span>
+                          <span className="font-medium text-gray-900">
+                            {cartao.limite ? `R$ ${cartao.limite.toFixed(2)}` : 'Não definido'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500">Fechamento</span>
+                          <span className="font-medium text-gray-900">Dia {cartao.diaFechamento}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500">Vencimento</span>
+                          <span className="font-medium text-gray-900">Dia {cartao.diaVencimento}</span>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             ))}
           </div>
