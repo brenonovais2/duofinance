@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Usuario {
-  id          String    @id @default(uuid())
-  ownerId     String?   
-  nome        String
-  despesas    Despesa[] @relation("DespesasPagas")
+  id                  String              @id @default(uuid())
+  ownerId             String?             
+  nome                String
+  despesas            Despesa[]           @relation("DespesasPagas")
   despesasRecorrentes DespesaRecorrente[] @relation("RecorrentesPagas")
+  transacoesMeta      TransacaoMeta[]     @relation("UsuarioTransacaoMeta")
 }
 
 model Cartao {
@@ -84,4 +85,30 @@ model DespesaRecorrente {
 
   cartaoId      String?
   cartao        Cartao?  @relation(fields: [cartaoId], references: [id])
+}
+
+model MetaFinanceira {
+  id          String    @id @default(uuid())
+  ownerId     String    @default("")
+  titulo      String
+  valorAlvo   Float
+  dataAlvo    DateTime?
+  fotoCapa    String?   
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  transacoes  TransacaoMeta[]
+}
+
+model TransacaoMeta {
+  id          String         @id @default(uuid())
+  ownerId     String         @default("")
+  metaId      String
+  meta        MetaFinanceira @relation(fields: [metaId], references: [id], onDelete: Cascade)
+  valor       Float          // Positivo para aporte, negativo para retirada
+  data        DateTime       @default(now())
+  tipo        String         // "Aporte" ou "Retirada"
+  usuarioId   String
+  usuario     Usuario        @relation("UsuarioTransacaoMeta", fields: [usuarioId], references: [id])
+  descricao   String?
 }
