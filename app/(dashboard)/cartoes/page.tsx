@@ -11,28 +11,24 @@ export default async function CartoesPage() {
   const ownerId = orgId || userId;
   if (!ownerId) redirect("/sign-in");
 
-  const [cartoes, faturas, usuarios] = await Promise.all([
+  const [cartoes, usuarios] = await Promise.all([
     prisma.cartao.findMany({
       where: { ownerId },
-      orderBy: { nome: 'asc' },
-      include: { faturas: true }
-    }),
-    prisma.fatura.findMany({
-      where: { ownerId },
+      orderBy: { nome: "asc" },
       include: {
-        cartao: true,
-        despesas: {
-          orderBy: { data: 'desc' }
-        }
+        faturas: {
+          orderBy: [{ ano: "desc" }, { mes: "desc" }],
+          include: {
+            despesas: {
+              orderBy: { data: "desc" },
+            },
+          },
+        },
       },
-      orderBy: [
-        { ano: 'desc' },
-        { mes: 'desc' }
-      ]
     }),
     prisma.usuario.findMany({
-      where: { ownerId }
-    })
+      where: { ownerId },
+    }),
   ]);
 
   return (
@@ -42,7 +38,7 @@ export default async function CartoesPage() {
         <p className="text-gray-500 mt-1">Gerencie as faturas, limites e acompanhe suas despesas de cartão de crédito.</p>
       </header>
 
-      <CartoesClient cartoes={cartoes} faturas={faturas} usuarios={usuarios} />
+      <CartoesClient cartoes={cartoes} usuarios={usuarios} />
     </main>
   );
 }
